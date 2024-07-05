@@ -14,19 +14,27 @@ namespace TicTacToe
 {
     public partial class TicTacToe : Form
     {
-        public Player Player1 {  get; set; }
+        public Player Player1 { get; set; }
         public Player Player2 { get; set; }
-        public Player Winner {  get; set; }
-        public Round currentRound {  get; set; }
-        public char[,] matrix {  get; set; }
-        public List<Button> buttons {  get; set; }
-        public WholeGame game {  get; set; }
-        public Image Sign {  get; set; }
-        public bool Turn {  get; set; }
+        public Player Winner { get; set; }
+        public Round currentRound { get; set; }
+        public char[,] matrix { get; set; }
+        public List<Button> buttons { get; set; }
+        public WholeGame game { get; set; }
+        public Image Sign { get; set; }
+        public bool Turn { get; set; }
         public int TilesLeft { get; set; }
         public char SignChar { get; set; }
-
+        private bool isGameEnding = false;
+        private bool isQuittingGame = false;
+        private bool hasConfirmedQuit = false;
         public TicTacToe()
+        {
+            InitializeComponent();
+            InitializeGame();
+        }
+
+        private void InitializeGame()
         {
             this.game = new WholeGame();
             this.Sign = Properties.Resources.X;
@@ -39,7 +47,7 @@ namespace TicTacToe
             this.buttons = new List<Button>();
             this.TilesLeft = 9;
             this.currentRound = new Round(game.Player1, game.Player2);
-            InitializeComponent();            
+            AddButtons();
         }
 
         private void TicTacToe_Load(object sender, EventArgs e)
@@ -50,7 +58,6 @@ namespace TicTacToe
 
         public void updateLabels()
         {
-            RoundLabel.Text = this.TilesLeft.ToString();
             Player1_label.Text = game.Player1.Name;
             Player2_label.Text = game.Player2.Name;
             Round.Text = game.Rounds.Count.ToString();
@@ -60,28 +67,44 @@ namespace TicTacToe
             if (this.Turn == true)
             {
                 PlayerTurn.Text = Player1.Name;
-            } else 
+            }
+            else
             {
                 PlayerTurn.Text = Player2.Name;
             }
-            
+
         }
 
         private void TicTacToe_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to end the game?", "Close", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (!hasConfirmedQuit)
             {
-                this.Close();
-                Environment.Exit(1);    
-                e.Cancel = true;
-            } else
+                if (!isQuittingGame && !isGameEnding)
+                {
+                    isGameEnding = true;
+                    DialogResult result = MessageBox.Show("Are you sure you want to end the game?", "Close", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.No)
+                    {
+                        e.Cancel = true;
+                        isGameEnding = false;
+                    }
+                    else
+                    {
+                        hasConfirmedQuit = true;
+                        isQuittingGame = true;
+                        Environment.Exit(1);
+                    }
+                }
+            }
+            else if (hasConfirmedQuit)
             {
-                e.Cancel = false;
+                Environment.Exit(0);
             }
         }
 
         public void NewGame()
         {
+            hasConfirmedQuit = false;
             this.game = new WholeGame();
             this.Sign = Properties.Resources.X;
             this.SignChar = 'x';
@@ -103,6 +126,7 @@ namespace TicTacToe
         {
             this.currentRound = new Round(game.Player1, game.Player2);
             this.game.AddRound(this.currentRound);
+
             if (game.Rounds.Count % 2 == 0)
             {
                 this.SignChar = 'o';
@@ -115,14 +139,18 @@ namespace TicTacToe
                 this.Sign = Properties.Resources.X;
                 this.Turn = true;
             }
-            this.TilesLeft = 9; 
+
+            this.TilesLeft = 9;
             this.Winner = null;
             this.buttons = new List<Button>();
             AddButtons();
+
             foreach (Button button in this.buttons)
             {
                 button.BackgroundImage = null;
+                button.Enabled = true;
             }
+
             this.matrix = new char[3, 3];
             this.updateLabels();
         }
@@ -133,10 +161,13 @@ namespace TicTacToe
             {
                 this.Sign = Properties.Resources.O;
                 this.Turn = false;
-            } else
+                this.SignChar = 'o';
+            }
+            else
             {
                 this.Sign = Properties.Resources.X;
                 this.Turn = true;
+                this.SignChar = 'x';
             }
         }
 
@@ -154,66 +185,157 @@ namespace TicTacToe
 
             for (int i = 0; i < 9; i++)
             {
-                buttons[i].Click += new EventHandler(Tile_Click);
+                buttons[i].Click -= Tile_Click;
+                buttons[i].Click += Tile_Click;
             }
+        }
+
+        private bool isWonGame()
+        {
+            // Check rows
+            for (int row = 0; row < 3; row++)
+            {
+                if (matrix[row, 0] != '\0' && matrix[row, 0] == matrix[row, 1] && matrix[row, 1] == matrix[row, 2])
+                {
+                    SetWinner(matrix[row, 0]);
+                    return true;
+                }
+            }
+
+            // Check columns
+            for (int col = 0; col < 3; col++)
+            {
+                if (matrix[0, col] != '\0' && matrix[0, col] == matrix[1, col] && matrix[1, col] == matrix[2, col])
+                {
+                    SetWinner(matrix[0, col]);
+                    return true;
+                }
+            }
+
+            // Check diagonals
+            if (matrix[0, 0] != '\0' && matrix[0, 0] == matrix[1, 1] && matrix[1, 1] == matrix[2, 2])
+            {
+                SetWinner(matrix[0, 0]);
+                return true;
+            }
+
+            if (matrix[0, 2] != '\0' && matrix[0, 2] == matrix[1, 1] && matrix[1, 1] == matrix[2, 0])
+            {
+                SetWinner(matrix[0, 2]);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void SetWinner(char winningSymbol)
+        {
+            if (winningSymbol == 'x')
+            {
+                this.Winner = Player1;
+                Player1.IncreaseNumerWins();
+            }
+            else if (winningSymbol == 'o')
+            {
+                this.Winner = Player2;
+                Player2.IncreaseNumerWins();
+            }
+        }
+
+        private bool isGameOver()
+        {
+            if (this.game.Rounds.Count == this.game.MaxRounds)
+            {
+                String winner = Player1.Name;
+                if (Player2.NumberWins > Player1.NumberWins)
+                {
+                    winner = Player2.Name;
+                }
+                if (Player2.NumberWins == Player1.NumberWins)
+                {
+                    if (MessageBox.Show($"It's a tie! Want to play another game?", "Game Tie", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        NewGame();
+                        return true;
+                    }
+                    else
+                    {
+                        this.Close();
+                        return true;
+                    }
+                }
+
+                if (MessageBox.Show($"The winner of the game is: {winner}! Want to play another game?", "Game Winner", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                {
+                    NewGame();
+                    return true;
+                }
+                else
+                {
+                    this.Close();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        private bool isTieGame()
+        {
+            return this.TilesLeft == 0;
         }
 
         private void Tile_Click(object sender, EventArgs e)
         {
             Button Tile = sender as Button;
-            Tile.BackgroundImage = this.Sign;
-            char Sign = 'x';
-            if (!this.Turn)
+
+            if (Tile.BackgroundImage != null)
             {
-                Sign = 'o';
+                return;
             }
+
+            Tile.BackgroundImage = this.Sign;
+            char Sign = this.SignChar;
 
             switch (Tile.Name)
             {
                 case "Tile1":
                     this.matrix[0, 0] = Sign;
-                    this.buttons[0].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile2":
                     this.matrix[0, 1] = Sign;
-                    this.buttons[1].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile3":
                     this.matrix[0, 2] = Sign;
-                    this.buttons[2].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile4":
                     this.matrix[1, 0] = Sign;
-                    this.buttons[3].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile5":
                     this.matrix[1, 1] = Sign;
-                    this.buttons[4].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile6":
                     this.matrix[1, 2] = Sign;
-                    this.buttons[5].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile7":
                     this.matrix[2, 0] = Sign;
-                    this.buttons[6].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile8":
                     this.matrix[2, 1] = Sign;
-                    this.buttons[7].Click -= new EventHandler(this.Tile_Click);
                     break;
                 case "Tile9":
                     this.matrix[2, 2] = Sign;
-                    this.buttons[8].Click -= new EventHandler(this.Tile_Click);
                     break;
-
             }
+            Tile.Enabled = false;
+
             this.TilesLeft -= 1;
             if (isWonGame())
             {
                 this.updateLabels();
                 this.currentRound.IsRoundOver = true;
-                if (!isGameOver()){
+                if (!isGameOver())
+                {
                     MessageBox.Show($"The winner is: {Winner.Name}", "Round Winner", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     StartRound();
                 }
@@ -227,12 +349,40 @@ namespace TicTacToe
                     MessageBox.Show($"It's a tie!", "Round Tie", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     StartRound();
                 }
-            } else { 
+            }
+            else
+            {
                 this.Change_Next_Sign();
                 this.updateLabels();
             }
         }
 
-        
+        private void QuitGame_Click(object sender, EventArgs e)
+        {
+            if (!hasConfirmedQuit)
+            {
+                DialogResult result = MessageBox.Show("Are you sure you want to end the game?", "Close", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    hasConfirmedQuit = true;
+                    isQuittingGame = true;
+                    this.Close();
+                }
+            }
+            else
+            {
+                isQuittingGame = true;
+                this.Close();
+            }
+        }
+
+        private void NewGameButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to start a new game?", "New Game", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                NewGame();
+            }
+        }
     }
 }

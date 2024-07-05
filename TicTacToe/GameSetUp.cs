@@ -15,21 +15,38 @@ namespace TicTacToe
         public static String Player1;
         public static String Player2;
         public static int MaxRounds;
+
         public GameSetUp()
         {
             InitializeComponent();
+            // Attach event handlers for TextChanged events
+            player1.TextChanged += new EventHandler(player1_TextChanged);
+            player2.TextChanged += new EventHandler(player2_TextChanged);
         }
 
+        private void GameSetUp_Load(object sender, EventArgs e)
+        {
+            ValidateInput();
+        }
 
         private void start_Click(object sender, EventArgs e)
         {
-            Player1 = player1.Text;
-            Player2 = player2.Text;
-            MaxRounds = (int)numberOfRounds.Value;
-            TicTacToe game = new TicTacToe();
-            this.Hide();
-            game.ShowDialog();
-            this.Close();
+            if (string.IsNullOrEmpty(player1.Text) || string.IsNullOrEmpty(player2.Text))
+            {
+                start.Enabled = false;
+            }
+            else
+            {
+                start.Enabled = true;
+                Player1 = player1.Text;
+                Player2 = player2.Text;
+                MaxRounds = (int)numberOfRounds.Value;
+                TicTacToe game = new TicTacToe();
+                this.Hide();
+                game.ShowDialog();
+                this.Close();
+            }
+            
         }
 
         private void cancel_Click(object sender, EventArgs e)
@@ -39,20 +56,22 @@ namespace TicTacToe
 
         private void player1_Validating(object sender, CancelEventArgs e)
         {
-            if (player1.Text == "")
+            if (string.IsNullOrEmpty(player1.Text))
             {
                 errorPlayer1.SetError(player1, "Must enter player name");
                 e.Cancel = true;
-            } else
+            }
+            else
             {
                 errorPlayer1.SetError(player1, null);
                 e.Cancel = false;
             }
+            ValidateInput();
         }
 
         private void player2_Validating(object sender, CancelEventArgs e)
         {
-            if (player2.Text == "")
+            if (string.IsNullOrEmpty(player2.Text))
             {
                 errorPlayer2.SetError(player2, "Must enter player name");
                 e.Cancel = true;
@@ -62,7 +81,25 @@ namespace TicTacToe
                 errorPlayer2.SetError(player2, null);
                 e.Cancel = false;
             }
+            ValidateInput();
         }
 
+        private void ValidateInput()
+        {
+            bool player1Valid = !string.IsNullOrEmpty(player1.Text);
+            bool player2Valid = !string.IsNullOrEmpty(player2.Text);
+
+            start.Enabled = player1Valid && player2Valid;
+        }
+
+        private void player1_TextChanged(object sender, EventArgs e)
+        {
+            ValidateInput();
+        }
+
+        private void player2_TextChanged(object sender, EventArgs e)
+        {
+            ValidateInput();
+        }
     }
 }

@@ -38,7 +38,7 @@
             this.Player1_wins = new System.Windows.Forms.Label();
             this.Player2_label = new System.Windows.Forms.Label();
             this.Player1_label = new System.Windows.Forms.Label();
-            this.RestartGame = new System.Windows.Forms.Button();
+            this.NewGameButton = new System.Windows.Forms.Button();
             this.QuitGame = new System.Windows.Forms.Button();
             this.Tile2 = new System.Windows.Forms.Button();
             this.Tile3 = new System.Windows.Forms.Button();
@@ -158,16 +158,17 @@
             this.Player1_label.TabIndex = 16;
             this.Player1_label.Text = "Player1";
             // 
-            // RestartGame
+            // NewGameButton
             // 
-            this.RestartGame.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(201)))), ((int)(((byte)(199)))), ((int)(((byte)(191)))));
-            this.RestartGame.Font = new System.Drawing.Font("Arial Rounded MT Bold", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.RestartGame.Location = new System.Drawing.Point(461, 380);
-            this.RestartGame.Name = "RestartGame";
-            this.RestartGame.Size = new System.Drawing.Size(169, 43);
-            this.RestartGame.TabIndex = 16;
-            this.RestartGame.Text = "Restart Game";
-            this.RestartGame.UseVisualStyleBackColor = false;
+            this.NewGameButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(201)))), ((int)(((byte)(199)))), ((int)(((byte)(191)))));
+            this.NewGameButton.Font = new System.Drawing.Font("Arial Rounded MT Bold", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewGameButton.Location = new System.Drawing.Point(461, 380);
+            this.NewGameButton.Name = "NewGameButton";
+            this.NewGameButton.Size = new System.Drawing.Size(169, 43);
+            this.NewGameButton.TabIndex = 16;
+            this.NewGameButton.Text = "New Game";
+            this.NewGameButton.UseVisualStyleBackColor = false;
+            this.NewGameButton.Click += new System.EventHandler(this.NewGameButton_Click);
             // 
             // QuitGame
             // 
@@ -295,7 +296,7 @@
             // 
             // TicTacToe
             // 
-            this.AcceptButton = this.RestartGame;
+            this.AcceptButton = this.NewGameButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(201)))), ((int)(((byte)(199)))), ((int)(((byte)(191)))));
@@ -314,7 +315,7 @@
             this.Controls.Add(this.Tile3);
             this.Controls.Add(this.Tile2);
             this.Controls.Add(this.QuitGame);
-            this.Controls.Add(this.RestartGame);
+            this.Controls.Add(this.NewGameButton);
             this.Controls.Add(this.Wins_groupBox);
             this.Controls.Add(this.Round);
             this.Controls.Add(this.RoundLabel);
@@ -342,7 +343,7 @@
         private System.Windows.Forms.Label Player1_wins;
         private System.Windows.Forms.Label Player2_label;
         private System.Windows.Forms.Label Player1_label;
-        private System.Windows.Forms.Button RestartGame;
+        private System.Windows.Forms.Button NewGameButton;
         private System.Windows.Forms.Button QuitGame;
         private System.Windows.Forms.Button Tile2;
         private System.Windows.Forms.Button Tile3;
