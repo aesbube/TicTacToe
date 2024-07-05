@@ -92,7 +92,7 @@ namespace TicTacToe
                     {
                         hasConfirmedQuit = true;
                         isQuittingGame = true;
-                        Environment.Exit(1);
+                        Environment.Exit(0);
                     }
                 }
             }
