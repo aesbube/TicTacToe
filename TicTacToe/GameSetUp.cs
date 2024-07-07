@@ -19,7 +19,6 @@ namespace TicTacToe
         public GameSetUp()
         {
             InitializeComponent();
-            // Attach event handlers for TextChanged events
             player1.TextChanged += new EventHandler(player1_TextChanged);
             player2.TextChanged += new EventHandler(player2_TextChanged);
         }

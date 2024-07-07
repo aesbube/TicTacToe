@@ -192,7 +192,6 @@ namespace TicTacToe
 
         private bool isWonGame()
         {
-            // Check rows
             for (int row = 0; row < 3; row++)
             {
                 if (matrix[row, 0] != '\0' && matrix[row, 0] == matrix[row, 1] && matrix[row, 1] == matrix[row, 2])
@@ -202,7 +201,6 @@ namespace TicTacToe
                 }
             }
 
-            // Check columns
             for (int col = 0; col < 3; col++)
             {
                 if (matrix[0, col] != '\0' && matrix[0, col] == matrix[1, col] && matrix[1, col] == matrix[2, col])
@@ -212,7 +210,6 @@ namespace TicTacToe
                 }
             }
 
-            // Check diagonals
             if (matrix[0, 0] != '\0' && matrix[0, 0] == matrix[1, 1] && matrix[1, 1] == matrix[2, 2])
             {
                 SetWinner(matrix[0, 0]);
